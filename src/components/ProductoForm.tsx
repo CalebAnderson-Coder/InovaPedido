@@ -103,81 +103,77 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold mb-6">📝 Agregar Producto</h2>
+
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Catálogo
             </label>
-            <div className="relative">
-              <Book className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <select
-                name="catalogo"
-                value={formData.catalogo}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 text-gray-500 [&:not(:placeholder-shown)]:text-gray-950"
-              >
-                <option value="" disabled selected className="text-gray-500">Elige el catálogo</option>
-                {CATALOGOS.map(cat => (
-                  <option key={cat} value={cat} className="text-gray-950 font-medium">{cat}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              name="catalogo"
+              value={formData.catalogo}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-md bg-white"
+            >
+              <option value="">Elige el catálogo</option>
+              {CATALOGOS.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Código
             </label>
-            <div className="relative">
-              <Barcode className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="number"
-                name="codigo"
-                value={formData.codigo}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="Código del producto"
-                min="0"
-              />
-            </div>
+            <input
+              type="text"
+              name="codigo"
+              value={formData.codigo}
+              onChange={handleChange}
+              placeholder="Código del producto"
+              className="w-full p-2 border rounded-md bg-white"
+            />
           </div>
 
-          <div className="md:col-span-2 space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="bg-pink-50 p-4 rounded-lg">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Descripción del Producto
             </label>
             <textarea
               name="nombre"
               value={formData.nombre}
               onChange={handleChange}
-              className="w-full p-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 min-h-[100px]"
-              placeholder="Ejemplo: Perfume Vibranza + Labial Nude Art + Colonia Pink Bloosom"
+              placeholder="Ejemplo: Perfume Vibranza + Labial Nude Art + Colonia Pink Blossom"
+              className="w-full p-2 border rounded-md bg-white min-h-[100px]"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Empaque
             </label>
-            <div className="relative">
-              <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <select
-                name="empaque"
-                value={formData.empaque}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 text-gray-500 [&:not(:placeholder-shown)]:text-gray-950"
-              >
-                <option value="">Tipo de empaque</option>
-                {TIPOS_EMPAQUE.map(tipo => (
-                  <option key={tipo} value={tipo} className="text-gray-950 font-medium">{tipo}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              name="empaque"
+              value={formData.empaque}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-md bg-white"
+            >
+              <option value="">Tipo de empaque</option>
+              {TIPOS_EMPAQUE.map((tipo) => (
+                <option key={tipo} value={tipo}>
+                  {tipo}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+            <div className="bg-green-50 p-4 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Precio
               </label>
               <input
@@ -185,38 +181,34 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
                 name="precio"
                 value={formData.precio}
                 onChange={handleChange}
-                step="0.50"
-                min="0"
-                className="w-full p-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500"
                 placeholder="Precio"
+                className="w-full p-2 border rounded-md bg-white"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Cantidad
               </label>
               <input
                 type="number"
                 name="cantidad"
-                value={formData.cantidad || 1}
+                value={formData.cantidad}
                 onChange={handleChange}
-                className="w-full p-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500"
-                placeholder="Cantidad"
                 min="1"
-                defaultValue="1"
+                className="w-full p-2 border rounded-md bg-white"
               />
             </div>
           </div>
-        </div>
 
-        <button
-          type="submit"
-          className="w-full bg-[#FF4B55] text-white py-2 px-4 rounded-lg hover:bg-[#E6434D] flex items-center justify-center gap-2 mt-6"
-        >
-          <Plus size={20} />
-          Agregar Producto
-        </button>
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 transition-colors mt-6"
+          >
+            <Plus className="h-5 w-5" />
+            Agregar Producto
+          </button>
+        </div>
       </form>
     </div>
   );
