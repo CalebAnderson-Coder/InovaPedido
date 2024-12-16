@@ -175,37 +175,31 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
               {error}
             </div>
           )}
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="flex flex-col gap-4">
             <button
               onClick={handleDescargarPedido}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
             >
               <Download className="h-5 w-5" />
-              Descargar Pedido
+              Confirmar y Descargar Pedido
             </button>
+            
             <button
               onClick={handleEnviarWhatsApp}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
             >
               <Send className="h-5 w-5" />
               Enviar por WhatsApp
             </button>
+            
             <button
-              onClick={handleConfirmar}
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50"
+              onClick={onClose}
+              className="w-full text-gray-600 hover:text-gray-800 transition-colors"
             >
-              <Check className="h-5 w-5" />
-              {loading ? 'Procesando... ⏳' : 'Confirmar'}
+              ¡Listo! ✅
             </button>
           </div>
-          <button
-            onClick={onClose}
-            className="mt-4 w-full text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            ¡Listo! ✅
-          </button>
         </div>
       </div>
     </div>

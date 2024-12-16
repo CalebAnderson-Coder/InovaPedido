@@ -113,6 +113,7 @@ export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido,
                   <button
                     onClick={() => onEditarPedido(pedido)}
                     className="flex-1 flex items-center justify-center gap-1 bg-yellow-500 text-white px-3 py-1.5 rounded text-sm hover:bg-yellow-600 transition-colors"
+                    style={{ visibility: 'visible' }}
                   >
                     <Edit3 size={14} />
                     Editar

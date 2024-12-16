@@ -97,16 +97,9 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-        <Plus size={24} className="text-gray-600" />
-        Agregar Producto
-      </h2>
-      
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold mb-6">📝 Agregar Producto</h2>
-
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Catálogo
             </label>
@@ -125,7 +118,7 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
             </select>
           </div>
 
-          <div className="bg-purple-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Código
             </label>
@@ -139,7 +132,7 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
             />
           </div>
 
-          <div className="bg-pink-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Descripción del Producto
             </label>
@@ -172,7 +165,7 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-green-50 p-4 rounded-lg">
+            <div className="bg-gray-50 p-4 rounded-lg">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Precio
               </label>
@@ -186,7 +179,7 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
               />
             </div>
 
-            <div className="bg-yellow-50 p-4 rounded-lg">
+            <div className="bg-gray-50 p-4 rounded-lg">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Cantidad
               </label>
