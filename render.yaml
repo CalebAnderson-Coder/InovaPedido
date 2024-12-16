@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: project-bolt
+    env: node
+    buildCommand: |
+      cd frontend && npm install && npm run build && cd ../backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_V1_STR
+        sync: false
+      - key: PROJECT_NAME
+        value: "Project Bolt"
+      - key: SECRET_KEY
+        sync: false
+      - key: BELCORP_USERNAME
+        sync: false
+      - key: BELCORP_PASSWORD
+        sync: false
+      - key: WHATSAPP_API_KEY
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER
+        sync: false
