@@ -1,0 +1,10 @@
+# Include configuration files
+!.node-version
+!.npmrc
+!build.sh
+!render.yaml
+
+# Exclude unnecessary files
+node_modules/
+dist/
+*.log
