@@ -38,12 +38,12 @@ export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido,
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Mis Pedidos</h2>
+        <h2 className="text-xl font-bold text-gray-800">Mis Pedidos</h2>
         <button
           onClick={onNuevoPedido}
-          className="flex items-center gap-2 bg-[#FF4B55] text-white px-4 py-2 rounded-lg hover:bg-[#E6434D] transition-colors"
+          className="flex items-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 transition-colors text-sm"
         >
-          <Plus size={20} />
+          <Plus size={16} />
           Nuevo Pedido
         </button>
       </div>
@@ -63,77 +63,60 @@ export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido,
         <div className="space-y-4">
           <h2 className="text-xl font-bold mb-4 text-gray-800">Pedidos</h2>
           {pedidos.map((pedido) => (
-            <div key={pedido.id} className="bg-white p-4 rounded-lg shadow">
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-purple-700">
+            <div key={pedido.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-purple-600 font-medium text-sm break-all">
                     Pedido #{pedido.id}
-                    {pedido.estado === 'pendiente' && (
-                      <span className="inline-flex items-center">
-                        <Clock size={16} className="text-purple-500" />
-                        <span className="text-sm text-purple-500 ml-1">Pendiente</span>
-                      </span>
-                    )}
                   </h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="flex items-center gap-1 text-gray-500">
+                      <Clock size={14} />
+                      Pendiente
+                    </span>
                     <button
                       onClick={() => exportToWord(pedido)}
-                      className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-purple-600 hover:text-purple-700"
-                      title="Exportar a Word"
+                      className="flex items-center gap-1 text-gray-500 hover:text-gray-700"
                     >
-                      <FileText size={16} />
+                      <FileText size={14} />
                       Exportar
                     </button>
-                    <span className="text-purple-600">Total: ${pedido.total}</span>
                   </div>
                 </div>
-                <div className="text-sm text-purple-600">
-                  {pedido.productos.map((producto) => (
-                    <div key={producto.id}>
-                      <p>
-                        {producto.nombre} - ${producto.precio} x {producto.cantidad}
-                        <br />
-                        <span className="text-xs text-purple-500">
-                          Catálogo: {producto.catalogo} • Código: {producto.codigo} • Empaque: {producto.empaque}
-                          {producto.empaque === 'Incluye' && producto.descripcionIncluye && (
-                            <> • Incluye: {producto.descripcionIncluye}</>
-                          )}
-                        </span>
-                      </p>
+                
+                <div className="text-sm text-gray-600 break-words">
+                  {pedido.productos.map((producto, index) => (
+                    <div key={index} className="text-xs">
+                      {producto.nombre} - ${producto.precio} x {producto.cantidad}
                     </div>
                   ))}
+                  <div className="text-xs mt-1">
+                    Catalogo: {pedido.catalogo} • Código: {pedido.codigo} • Empaque: {pedido.empaque}
+                  </div>
                 </div>
-              </div>
-              <div className="border-t pt-3">
-                <div className="flex justify-end gap-2">
-                  {pedido.estado === 'pendiente' && (
-                    <>
-                      <button
-                        onClick={() => handleCompletar(pedido)}
-                        className="px-3 py-1 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600 flex items-center gap-1"
-                        title="Completar pedido"
-                      >
-                        <CheckCircle2 size={16} />
-                        Completar
-                      </button>
-                      <button
-                        onClick={() => onCambiarEstado(pedido.id, 'cancelado')}
-                        className="px-3 py-1 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 flex items-center gap-1"
-                        title="Cancelar pedido"
-                      >
-                        <XCircle size={16} />
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => onEditarPedido(pedido)}
-                        className="px-3 py-1 text-sm font-medium text-white bg-yellow-500 rounded hover:bg-yellow-600 flex items-center gap-1"
-                        title="Editar pedido"
-                      >
-                        <Edit3 size={16} />
-                        Editar
-                      </button>
-                    </>
-                  )}
+
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleCompletar(pedido)}
+                    className="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded text-sm hover:bg-green-600 transition-colors"
+                  >
+                    <CheckCircle2 size={14} />
+                    Completar
+                  </button>
+                  <button
+                    onClick={() => onCambiarEstado(pedido.id, 'cancelado')}
+                    className="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white px-3 py-1.5 rounded text-sm hover:bg-red-600 transition-colors"
+                  >
+                    <XCircle size={14} />
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => onEditarPedido(pedido)}
+                    className="flex-1 flex items-center justify-center gap-1 bg-yellow-500 text-white px-3 py-1.5 rounded text-sm hover:bg-yellow-600 transition-colors"
+                  >
+                    <Edit3 size={14} />
+                    Editar
+                  </button>
                 </div>
               </div>
             </div>
