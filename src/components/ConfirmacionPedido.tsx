@@ -177,7 +177,7 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
           )}
           <div className="flex flex-col gap-4">
             <button
-              onClick={handleDescargarPedido}
+              onClick={handleConfirmar} // Cambiado a handleConfirmar
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
             >
