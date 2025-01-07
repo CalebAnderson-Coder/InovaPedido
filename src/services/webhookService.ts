@@ -1,6 +1,6 @@
 import { Pedido } from '../types/types';
 
-const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/8qetulx1rrm4hnqe19ht67ewez0qy1kk';
+const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uwm9b9ey35dl3grjvn4dywv5lm2etvel';
 
 export const enviarPedidoAMake = async (pedido: Pedido): Promise<void> => {
   try {
