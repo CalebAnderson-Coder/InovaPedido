@@ -13,6 +13,7 @@ interface ConfirmacionPedidoProps {
 const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose }) => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [pedidoProcesado, setPedidoProcesado] = React.useState(false); // Nuevo estado
 
   const handleDescargarPedido = async () => {
     setLoading(true);
@@ -110,6 +111,16 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
   };
 
   const handleConfirmar = async () => {
+    // Si el pedido ya fue procesado, mostrar advertencia
+    if (pedidoProcesado) {
+      const confirmarNuevamente = window.confirm(
+        'El pedido ya fue procesado y enviado. ¿Desea continuar y enviarlo nuevamente?'
+      );
+      if (!confirmarNuevamente) {
+        return; // Si el usuario cancela, no hacer nada
+      }
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -122,7 +133,8 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
       }
       await generarDocumentoPedido(pedido);
       
-      // Ya no cerramos el modal aquí para que el usuario pueda continuar con el siguiente paso
+      // Marcamos el pedido como procesado
+      setPedidoProcesado(true);
     } catch (err) {
       setError('Error al procesar el pedido. Por favor intente de nuevo.');
       console.error('Error:', err);
@@ -177,7 +189,7 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
           )}
           <div className="flex flex-col gap-4">
             <button
-              onClick={handleConfirmar} // Cambiado a handleConfirmar
+              onClick={handleConfirmar}
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
             >
