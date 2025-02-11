@@ -1,10 +1,10 @@
 import { Pedido } from '../types/types';
 
-const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uwm9b9ey35dl3grjvn4dywv5lm2etvel';
+const N8N_WEBHOOK_URL = 'https://cashfunnel.app.n8n.cloud/webhook/5a9019ce-fd94-4bdd-94d5-c27537176768';
 
-export const enviarPedidoAMake = async (pedido: Pedido): Promise<void> => {
+export const enviarPedidoAWebhook = async (pedido: Pedido): Promise<void> => {
   try {
-    // Transformar los productos en filas individuales con los nombres exactos que espera Make
+    // Transformar los productos en filas individuales
     for (const producto of pedido.productos) {
       const filaPedido = {
         zona: pedido.zona,
@@ -16,11 +16,10 @@ export const enviarPedidoAMake = async (pedido: Pedido): Promise<void> => {
         producto: producto.nombre,
         precio_unitario: producto.precio,
         monto_total: producto.precio * producto.cantidad,
-        telefono: "" // Campo requerido por Make
+        telefono: "" // Si aún lo necesitas
       };
 
-      // Enviar cada producto individualmente
-      const response = await fetch(MAKE_WEBHOOK_URL, {
+      const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,13 +28,13 @@ export const enviarPedidoAMake = async (pedido: Pedido): Promise<void> => {
       });
 
       if (!response.ok) {
-        throw new Error(`Error al enviar datos a Make.com: ${response.statusText}`);
+        throw new Error(`Error al enviar datos a n8n: ${response.statusText}`);
       }
 
       console.log(`Producto enviado: ${producto.nombre}`);
     }
   } catch (error) {
-    console.error('Error al enviar datos a Make.com:', error);
+    console.error('Error al enviar datos a n8n:', error);
     throw error;
   }
 };
