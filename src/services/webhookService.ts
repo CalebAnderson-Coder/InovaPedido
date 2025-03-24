@@ -1,6 +1,6 @@
 import { Pedido } from '../types/types';
 
-const N8N_WEBHOOK_URL = 'https://cashfunnel.app.n8n.cloud/webhook/5a9019ce-fd94-4bdd-94d5-c27537176768';
+const N8N_WEBHOOK_URL = 'https://primary-production-68299.up.railway.app/webhook/PedidosInova';
 
 export const enviarPedidoAMake= async (pedido: Pedido): Promise<void> => {
   try {
