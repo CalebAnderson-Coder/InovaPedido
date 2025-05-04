@@ -1,6 +1,6 @@
 import { Pedido } from '../types/types';
 
-const N8N_WEBHOOK_URL = 'https://primary-production-68299.up.railway.app/webhook/PedidosInova';
+const N8N_WEBHOOK_URL = 'https://primary-production-3d6ad.up.railway.app/webhook/PedidosInova';
 
 export const enviarPedidoAMake= async (pedido: Pedido): Promise<void> => {
   try {
