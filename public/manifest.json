@@ -1,6 +1,6 @@
 {
-  "name": "PedidosInova",
-  "short_name": "PedidosInova",
+  "name": "InovaPedido", 
+  "short_name": "InovaPedido",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
