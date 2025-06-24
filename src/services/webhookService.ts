@@ -1,6 +1,6 @@
 import { Pedido } from '../types/types';
 
-const N8N_WEBHOOK_URL = 'https://ds-soluciones-n8n.1t3fu4.easypanel.host/webhook-test/PedidosInova';
+const N8N_WEBHOOK_URL = 'https://ds-soluciones-n8n.1t3fu4.easypanel.host/webhook/Pedido';
 
 export const enviarPedidoAMake= async (pedido: Pedido): Promise<void> => {
   try {
