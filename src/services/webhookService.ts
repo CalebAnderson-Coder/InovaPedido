@@ -1,6 +1,6 @@
 import { Pedido } from '../types/types';
 
-const N8N_WEBHOOK_URL = 'https://ds-soluciones-n8n.1t3fu4.easypanel.host/webhook/Pedido';
+const N8N_WEBHOOK_URL = 'https://cashfunnel-n8n.ofguzy.easypanel.host/webhook/PedidosInova';
 
 export const enviarPedidoAMake = async (pedido: Pedido): Promise<void> => {
   try {
@@ -48,4 +48,3 @@ export const enviarPedidoAMake = async (pedido: Pedido): Promise<void> => {
     throw error;
   }
 };
-
