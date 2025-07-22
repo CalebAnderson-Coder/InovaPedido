@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { buscarProductoPorCodigo } from '../services/productoService';
 import { Plus, Package, Barcode, Book, ListChecks } from 'lucide-react';
 import type { Producto } from '../types/types';
 import { CATALOGOS, TIPOS_EMPAQUE } from '../constants/catalogos';
@@ -17,6 +18,48 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
     empaque: '',
     descripcionIncluye: '',
   });
+  const [busquedaEnProgreso, setBusquedaEnProgreso] = useState(false);
+
+  const handleBuscarProducto = async () => {
+    if (!formData.catalogo) {
+      alert('Por favor, seleccione un catálogo antes de buscar.');
+      return;
+    }
+    if (formData.codigo.length >= 5) {
+      setBusquedaEnProgreso(true);
+      try {
+        const producto = await buscarProductoPorCodigo(formData.codigo);
+        console.log(`Buscando: Código=${formData.codigo}, Catálogo Form=${formData.catalogo}`);
+        console.log(`Producto encontrado:`, producto);
+        if (producto && producto.catalogo.toUpperCase() === formData.catalogo.toUpperCase()) { // Filter by catalog, case-insensitive
+          setFormData((prev) => ({
+            ...prev,
+            nombre: `${producto.producto || ''} ${producto.descripcion || ''}`,
+            descripcionIncluye: producto.descripcion || '',
+            precio: producto.precio?.toString() || '',
+            // catalogo: producto.catalogo || '', // Keep selected catalog
+            empaque: producto.tipo_oferta === 'Set' ? 'Set' : prev.empaque
+          }));
+        } else {
+          alert('Producto no encontrado en el catálogo seleccionado. Por favor, verifique el código y el catálogo.');
+          setFormData((prev) => ({
+            ...prev,
+            nombre: '',
+            precio: '',
+            descripcionIncluye: '',
+            empaque: ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error buscando producto:', error);
+        alert('Hubo un error al buscar el producto. Por favor intente de nuevo.');
+      } finally {
+        setBusquedaEnProgreso(false);
+      }
+    } else {
+      alert('Por favor, ingrese al menos 5 dígitos para el código del producto.');
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,14 +125,14 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
     // Para el campo código, asegurarnos de que solo contenga números
     if (name === 'codigo' && value !== '') {
       const numericValue = value.replace(/[^0-9]/g, '');
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         [name]: numericValue
       }));
       return;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -122,14 +165,33 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Código
             </label>
-            <input
-              type="text"
-              name="codigo"
-              value={formData.codigo}
-              onChange={handleChange}
-              placeholder="Código del producto"
-              className="w-full p-2 border rounded-md bg-white"
-            />
+            <div className="relative flex">
+              <input
+                type="text"
+                name="codigo"
+                value={formData.codigo}
+                onChange={handleChange}
+                placeholder="Código del producto"
+                className="w-full p-2 border rounded-l-md bg-white"
+              />
+              <button
+                type="button"
+                onClick={handleBuscarProducto}
+                className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 transition-colors flex items-center justify-center"
+                disabled={busquedaEnProgreso}
+              >
+                {busquedaEnProgreso ? (
+                  <div className="animate-spin">
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                ) : (
+                  <Barcode className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg">
