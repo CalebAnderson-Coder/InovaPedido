@@ -20,17 +20,39 @@ export async function getProductos(): Promise<Producto[]> {
   const fileContent = await response.text();
   
   const lines = fileContent.split('\n').slice(1); // Saltar encabezado
+  
+  const parseCSVLine = (line: string): string[] => {
+    const fields = [];
+    let currentField = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        fields.push(currentField.trim());
+        currentField = '';
+      } else {
+        currentField += char;
+      }
+    }
+    fields.push(currentField.trim());
+
+    return fields;
+  };
+
   productosCache = lines.map(line => {
-    const [codigo, catalogo, producto, descripcion, precio, pagina, descuento, tipo_oferta] = 
-      line.split(',').map(field => field.trim());
+    const [codigo, catalogo, producto, descripcion, precio, pagina, descuento, tipo_oferta] = parseCSVLine(line);
     
     return {
       codigo,
       catalogo,
-      producto,
-      descripcion,
-      precio: parseFloat(precio),
-      pagina: parseInt(pagina),
+      producto: producto ? producto.replace(/"/g, '') : '',
+      descripcion: descripcion ? descripcion.replace(/"/g, '') : '',
+      precio: parseFloat(precio) || 0,
+      pagina: parseInt(pagina) || 0,
       descuento,
       tipo_oferta
     };
