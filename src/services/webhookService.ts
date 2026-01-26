@@ -1,9 +1,13 @@
 import { Pedido } from '../types/types';
 
 // Reemplazar esta URL con la URL de tu Google Apps Script desplegado
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/TU_SCRIPT_ID_AQUI/exec';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiZzdDFbfucmwMBJppATA42PbvOF_bwNHo198F68XE-ziPJzgGKyeQ_ZWlVmgluhcasA/exec';
 
 export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> => {
+  if (GOOGLE_APPS_SCRIPT_URL.includes('TU_SCRIPT_ID_AQUI')) {
+    console.error('URL de Google Apps Script no configurada');
+    throw new Error('La URL del Webhook de Google Sheets no está configurada. Por favor edita src/services/webhookService.ts con tu URL real.');
+  }
   try {
     // Transformar el pedido al formato esperado por el AppScript
     const payload = {
@@ -21,7 +25,7 @@ export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> =
 
     console.log('Enviando pedido a Google Sheets...');
     console.log('Payload:', JSON.stringify(payload, null, 2));
-    
+
     try {
       const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: 'POST',
@@ -32,7 +36,7 @@ export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> =
       });
 
       console.log('Response status:', response.status);
-      
+
       if (!response.ok) {
         const errorBody = await response.text();
         throw new Error(`Error ${response.status}: ${errorBody}`);
@@ -40,7 +44,7 @@ export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> =
 
       const result = await response.json();
       console.log('Respuesta de Google Sheets:', result);
-      
+
       if (result.result !== 'success') {
         throw new Error(`Error en Google Sheets: ${result.error}`);
       }

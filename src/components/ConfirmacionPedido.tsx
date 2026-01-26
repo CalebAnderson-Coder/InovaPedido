@@ -52,7 +52,18 @@ const handleEnviarWhatsApp = () => {
       return;
     }
     
-    const message = encodeURIComponent('Hola Inovabot, ya tengo mi pedido listo!');
+    const itemsList = pedido.productos.map(p => 
+      `• ${p.nombre} (${p.catalogo}) x${p.cantidad} - $${(p.precio * p.cantidad).toFixed(2)}`
+    ).join('\n');
+
+    const textoMensaje = `Hola Inovabot, ya tengo mi pedido listo!\n\n` +
+      `*Pedido #${pedido.id}*\n` +
+      `Vendedora: ${pedido.vendedora}\n` +
+      `Zona: ${pedido.zona}\n\n` +
+      `*Productos:*\n${itemsList}\n\n` +
+      `*Total: $${pedido.total.toFixed(2)}*`;
+
+    const message = encodeURIComponent(textoMensaje);
     window.open(`https://wa.me/${numeroLimpio}?text=${message}`, '_blank');
     
     // Cerrar el selector después de enviar
