@@ -1,7 +1,7 @@
 import { Pedido } from '../types/types';
 
 // Reemplazar esta URL con la URL de tu Google Apps Script desplegado
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiZzdDFbfucmwMBJppATA42PbvOF_bwNHo198F68XE-ziPJzgGKyeQ_ZWlVmgluhcasA/exec';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYXxFhX2eSlwhM2tZKN5qGZ4Nv2vZQ6xFdiZFzLcq69-y6jV2TtVaNmXn-ClCBtZEWrA/exec';
 
 export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> => {
   if (GOOGLE_APPS_SCRIPT_URL.includes('TU_SCRIPT_ID_AQUI')) {
