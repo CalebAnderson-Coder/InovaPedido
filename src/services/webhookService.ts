@@ -19,7 +19,8 @@ export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> =
         code: producto.codigo,
         name: producto.nombre,
         price: producto.precio,
-        total: producto.precio * producto.cantidad
+        total: producto.precio * producto.cantidad,
+        empaque: producto.empaque
       }))
     };
 
