@@ -6,12 +6,13 @@ import { exportToWord } from '../utils/wordExport';
 
 interface ListaPedidosProps {
   pedidos: Pedido[];
-  onCambiarEstado: (id: number, estado: Pedido['estado']) => void;
+  onCambiarEstado: (id: string, estado: Pedido['estado']) => void;
   onEditarPedido: (pedido: Pedido) => void;
   onNuevoPedido: () => void;
+  onMarcarEnviado: (id: string) => void;
 }
 
-export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido, onNuevoPedido }: ListaPedidosProps) {
+export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido, onNuevoPedido, onMarcarEnviado }: ListaPedidosProps) {
   const [pedidoEnAdvertencia, setPedidoEnAdvertencia] = useState<Pedido | null>(null);
   const [pedidoConfirmado, setPedidoConfirmado] = useState<Pedido | null>(null);
 
@@ -80,6 +81,12 @@ export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido,
                         <Clock size={14} />
                         Pendiente
                       </span>
+                      {pedido.enviado && (
+                        <span className="flex items-center gap-1 text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded">
+                          <CheckCircle2 size={14} />
+                          Enviado
+                        </span>
+                      )}
                       <button
                         onClick={() => exportToWord(pedido)}
                         className="flex items-center gap-1 text-gray-500 hover:text-gray-700"
@@ -89,7 +96,7 @@ export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido,
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="text-sm text-gray-600 break-words">
                     {pedido.productos.map((producto, index) => (
                       <div key={index} className="text-xs">
@@ -159,6 +166,7 @@ export default function ListaPedidos({ pedidos, onCambiarEstado, onEditarPedido,
         <ConfirmacionPedido
           pedido={pedidoConfirmado}
           onClose={handleCerrarConfirmacion}
+          onPedidoEnviado={onMarcarEnviado}
         />
       )}
     </div>

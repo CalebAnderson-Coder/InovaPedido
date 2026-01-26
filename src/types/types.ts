@@ -29,4 +29,5 @@ export interface Pedido {
   codigo: string;
   empaque: string;
   fechaCreacion: Date;
+  enviado?: boolean;
 }

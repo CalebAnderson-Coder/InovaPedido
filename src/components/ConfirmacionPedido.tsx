@@ -8,12 +8,13 @@ import { Document, Paragraph, TextRun, AlignmentType } from 'docx';
 interface ConfirmacionPedidoProps {
   pedido: Pedido;
   onClose: () => void;
+  onPedidoEnviado?: (id: string) => void;
 }
 
-const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose }) => {
-const [loading, setLoading] = React.useState(false);
+const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose, onPedidoEnviado }) => {
+  const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [pedidoProcesado, setPedidoProcesado] = React.useState(false); // Nuevo estado
+  const [pedidoProcesado, setPedidoProcesado] = React.useState(!!pedido.enviado);
   const [mostrarSelectorWhatsApp, setMostrarSelectorWhatsApp] = React.useState(false);
   const [numeroWhatsApp, setNumeroWhatsApp] = React.useState('');
 
@@ -21,7 +22,6 @@ const [loading, setLoading] = React.useState(false);
     setLoading(true);
     setError(null);
     try {
-      // Asegurarnos de que el pedido tenga todos los datos necesarios
       if (!pedido.vendedora || !pedido.zona) {
         throw new Error('Faltan datos de la vendedora');
       }
@@ -34,7 +34,7 @@ const [loading, setLoading] = React.useState(false);
     }
   };
 
-const handleEnviarWhatsApp = () => {
+  const handleEnviarWhatsApp = () => {
     setMostrarSelectorWhatsApp(true);
   };
 
@@ -43,16 +43,15 @@ const handleEnviarWhatsApp = () => {
       alert('Por favor ingrese un número de teléfono');
       return;
     }
-    
-    // Limpiar el número (solo dígitos, sin +, sin espacios, sin guiones)
+
     const numeroLimpio = numeroWhatsApp.replace(/\D/g, '');
-    
+
     if (numeroLimpio.length < 10) {
       alert('Por favor ingrese un número de teléfono válido (al menos 10 dígitos)');
       return;
     }
-    
-    const itemsList = pedido.productos.map(p => 
+
+    const itemsList = pedido.productos.map(p =>
       `• ${p.nombre} (${p.catalogo}) x${p.cantidad} - $${(p.precio * p.cantidad).toFixed(2)}`
     ).join('\n');
 
@@ -65,8 +64,7 @@ const handleEnviarWhatsApp = () => {
 
     const message = encodeURIComponent(textoMensaje);
     window.open(`https://wa.me/${numeroLimpio}?text=${message}`, '_blank');
-    
-    // Cerrar el selector después de enviar
+
     setMostrarSelectorWhatsApp(false);
     setNumeroWhatsApp('');
   };
@@ -144,14 +142,23 @@ const handleEnviarWhatsApp = () => {
   };
 
   const handleConfirmar = async () => {
-    // Si el pedido ya fue procesado, mostrar advertencia
+    // Si el pedido ya fue procesado, solo generar documento
     if (pedidoProcesado) {
       const confirmarNuevamente = window.confirm(
-        'El pedido ya fue procesado y enviado. ¿Desea continuar y enviarlo nuevamente?'
+        'El pedido ya fue enviado a Google Sheets anteriormente. ¿Solo deseas descargar el PDF nuevamente?'
       );
-      if (!confirmarNuevamente) {
-        return; // Si el usuario cancela, no hacer nada
+      if (!confirmarNuevamente) return;
+
+      try {
+        setLoading(true);
+        if (!pedido.vendedora || !pedido.zona) throw new Error('Faltan datos de la vendedora');
+        await generarDocumentoPedido(pedido);
+        setLoading(false);
+      } catch (err) {
+        setError('Error al generar el documento');
+        setLoading(false);
       }
+      return;
     }
 
     setLoading(true);
@@ -159,13 +166,18 @@ const handleEnviarWhatsApp = () => {
     try {
       // Primero enviamos los datos a Google Sheets
       await enviarPedidoAGoogleSheets(pedido);
-      
+
+      // Marcar como enviado si la función existe
+      if (onPedidoEnviado) {
+        onPedidoEnviado(pedido.id);
+      }
+
       // Luego generamos el documento
       if (!pedido.vendedora || !pedido.zona) {
         throw new Error('Faltan datos de la vendedora');
       }
       await generarDocumentoPedido(pedido);
-      
+
       // Marcamos el pedido como procesado
       setPedidoProcesado(true);
     } catch (err) {
@@ -185,16 +197,30 @@ const handleEnviarWhatsApp = () => {
               <span className="text-yellow-600 text-xl">⚠️</span>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">¡Genial! ✨ Ya tu pedido está Casi Confirmado 🎉</h3>
-              <p className="text-sm text-gray-600">
-                Sigue estos pasos: 👇
-              </p>
-              <p className="text-sm text-gray-600">
-                1️⃣ Dale al botón verde "Confirmar y Descargar Pedido" 💚
-              </p>
-              <p className="text-sm text-gray-600">
-                2️⃣ Dale al botón azul "Enviar por WhatsApp" para enviar el pedido a Inovabot 💬
-              </p>
+              {pedidoProcesado ? (
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Pedido Ya Enviado ✅</h3>
+                  <p className="text-sm text-gray-600">
+                    Este pedido ya fue enviado a Google Sheets.
+                  </p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Puedes descargarlo nuevamente o enviarlo por WhatsApp.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">¡Genial! ✨ Ya tu pedido está Casi Confirmado 🎉</h3>
+                  <p className="text-sm text-gray-600">
+                    Sigue estos pasos: 👇
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    1️⃣ Dale al botón verde "Confirmar y Descargar Pedido" 💚
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    2️⃣ Dale al botón azul "Enviar por WhatsApp" para enviar el pedido a Inovabot 💬
+                  </p>
+                </>
+              )}
             </div>
           </div>
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
@@ -224,12 +250,13 @@ const handleEnviarWhatsApp = () => {
             <button
               onClick={handleConfirmar}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+              className={`w-full flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${pedidoProcesado ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-500 hover:bg-green-600'
+                }`}
             >
               <Download className="h-5 w-5" />
-              Confirmar y Descargar Pedido
+              {pedidoProcesado ? 'Descargar Documento (Copia)' : 'Confirmar y Descargar Pedido'}
             </button>
-            
+
             <button
               onClick={handleEnviarWhatsApp}
               className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
@@ -237,7 +264,7 @@ const handleEnviarWhatsApp = () => {
               <Send className="h-5 w-5" />
               Enviar por WhatsApp
             </button>
-            
+
             <button
               onClick={onClose}
               className="w-full text-gray-600 hover:text-gray-800 transition-colors"
@@ -247,7 +274,7 @@ const handleEnviarWhatsApp = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Modal para seleccionar número de WhatsApp */}
       {mostrarSelectorWhatsApp && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">

@@ -84,7 +84,7 @@ export default function PedidosManager({ vendedora }: PedidosManagerProps) {
     setProductos([]); // Limpiar productos después de crear el pedido
   };
 
-  const handleCambiarEstado = (id: number, estado: Pedido['estado']) => {
+  const handleCambiarEstado = (id: string, estado: Pedido['estado']) => {
     if (estado === 'completado') {
       const fechaEntrega = new Date();
       setPedidos(pedidos.map(p =>
@@ -116,6 +116,12 @@ export default function PedidosManager({ vendedora }: PedidosManagerProps) {
 
   const handleCerrarConfirmacion = () => {
     setPedidoConfirmado(null);
+  };
+
+  const handleMarcarEnviado = (id: string) => {
+    setPedidos(pedidos.map(p =>
+      p.id === id ? { ...p, enviado: true } : p
+    ));
   };
 
   return (
@@ -198,6 +204,7 @@ export default function PedidosManager({ vendedora }: PedidosManagerProps) {
             pedidos={pedidos}
             onCambiarEstado={handleCambiarEstado}
             onEditarPedido={handleEditarPedido}
+            onMarcarEnviado={handleMarcarEnviado}
           />
         </div>
       </div>
