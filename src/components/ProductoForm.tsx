@@ -17,6 +17,7 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
     codigo: '',
     empaque: '',
     descripcionIncluye: '',
+    imagen: '',
   });
   const [busquedaEnProgreso, setBusquedaEnProgreso] = useState(false);
 
@@ -37,6 +38,7 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
             nombre: `${producto.producto || ''} ${producto.descripcion || ''}`,
             descripcionIncluye: producto.descripcion || '',
             precio: producto.precio?.toString() || '',
+            imagen: producto.imagen || '',
             // catalogo: producto.catalogo || '', // Keep selected catalog
             empaque: producto.tipo_oferta === 'Set' ? 'Set' : prev.empaque
           }));
@@ -98,21 +100,23 @@ export default function ProductoForm({ onAgregarProducto }: ProductoFormProps) {
       catalogo: formData.catalogo as Producto['catalogo'],
       codigo: formData.codigo.trim(),
       empaque: formData.empaque as Producto['empaque'],
+      imagen: formData.imagen || ''
     };
 
     try {
       onAgregarProducto(nuevoProducto);
       
-      // Limpiar el formulario solo después de agregar exitosamente
-      setFormData({
-        nombre: '',
-        precio: '',
-        cantidad: '1',
-        catalogo: '',
-        codigo: '',
-        empaque: '',
-        descripcionIncluye: '',
-      });
+       // Limpiar el formulario solo después de agregar exitosamente
+       setFormData({
+         nombre: '',
+         precio: '',
+         cantidad: '1',
+         catalogo: '',
+         codigo: '',
+         empaque: '',
+         descripcionIncluye: '',
+         imagen: '',
+       });
     } catch (error) {
       alert('Hubo un error al agregar el producto. Por favor intente de nuevo.');
       console.error('Error al agregar producto:', error);

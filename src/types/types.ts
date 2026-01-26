@@ -10,6 +10,7 @@ export interface Producto {
   codigo: string;
   empaque: TipoEmpaque;
   descripcionIncluye?: string;
+  imagen?: string;
 }
 
 export interface Vendedora {

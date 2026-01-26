@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pedido } from '../types/types';
 import { generarDocumentoPedido } from '../services/pedidoService';
-import { enviarPedidoAMake } from '../services/webhookService';
+import { enviarPedidoAGoogleSheets } from '../services/webhookService';
 import { Check, Download, Send } from 'lucide-react';
 import { Document, Paragraph, TextRun, AlignmentType } from 'docx';
 
@@ -11,9 +11,11 @@ interface ConfirmacionPedidoProps {
 }
 
 const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose }) => {
-  const [loading, setLoading] = React.useState(false);
+const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [pedidoProcesado, setPedidoProcesado] = React.useState(false); // Nuevo estado
+  const [mostrarSelectorWhatsApp, setMostrarSelectorWhatsApp] = React.useState(false);
+  const [numeroWhatsApp, setNumeroWhatsApp] = React.useState('');
 
   const handleDescargarPedido = async () => {
     setLoading(true);
@@ -32,10 +34,30 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
     }
   };
 
-  const handleEnviarWhatsApp = () => {
+const handleEnviarWhatsApp = () => {
+    setMostrarSelectorWhatsApp(true);
+  };
+
+  const handleEnviarWhatsAppConNumero = () => {
+    if (!numeroWhatsApp.trim()) {
+      alert('Por favor ingrese un número de teléfono');
+      return;
+    }
+    
+    // Limpiar el número (solo dígitos, sin +, sin espacios, sin guiones)
+    const numeroLimpio = numeroWhatsApp.replace(/\D/g, '');
+    
+    if (numeroLimpio.length < 10) {
+      alert('Por favor ingrese un número de teléfono válido (al menos 10 dígitos)');
+      return;
+    }
+    
     const message = encodeURIComponent('Hola Inovabot, ya tengo mi pedido listo!');
-    window.open(`https://wa.me/447453799527?text=${message}`, '_blank');
-    // El modal se mantiene abierto para que el usuario pueda dar click en "Listo" cuando termine
+    window.open(`https://wa.me/${numeroLimpio}?text=${message}`, '_blank');
+    
+    // Cerrar el selector después de enviar
+    setMostrarSelectorWhatsApp(false);
+    setNumeroWhatsApp('');
   };
 
   const generateWordDocument = async () => {
@@ -124,8 +146,8 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
     setLoading(true);
     setError(null);
     try {
-      // Primero enviamos los datos a Make.com
-      await enviarPedidoAMake(pedido);
+      // Primero enviamos los datos a Google Sheets
+      await enviarPedidoAGoogleSheets(pedido);
       
       // Luego generamos el documento
       if (!pedido.vendedora || !pedido.zona) {
@@ -214,6 +236,45 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
           </div>
         </div>
       </div>
+      
+      {/* Modal para seleccionar número de WhatsApp */}
+      {mostrarSelectorWhatsApp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-sm mx-auto p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Enviar por WhatsApp 💬
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Ingresa el número de teléfono al que quieres enviar el mensaje:
+            </p>
+            <input
+              type="tel"
+              value={numeroWhatsApp}
+              onChange={(e) => setNumeroWhatsApp(e.target.value)}
+              placeholder="Ej: 1234567890"
+              className="w-full p-3 border rounded-lg mb-4"
+              autoFocus
+            />
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleEnviarWhatsAppConNumero}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Enviar Mensaje
+              </button>
+              <button
+                onClick={() => {
+                  setMostrarSelectorWhatsApp(false);
+                  setNumeroWhatsApp('');
+                }}
+                className="w-full text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

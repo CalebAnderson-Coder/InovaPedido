@@ -31,13 +31,24 @@ export default function ProductoEnPedido({
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
       <div className="flex justify-between items-start">
-        <div className="space-y-1 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium text-gray-900">{producto.nombre}</h3>
-            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-              {producto.catalogo}
-            </span>
-          </div>
+        <div className="flex gap-4 flex-1">
+          {producto.imagen && (
+            <img 
+              src={producto.imagen} 
+              alt={producto.nombre}
+              className="w-16 h-16 object-cover rounded-lg"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
+          <div className="space-y-1 flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-gray-900">{producto.nombre}</h3>
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                {producto.catalogo}
+              </span>
+            </div>
           <div className="text-sm text-gray-500 space-x-2">
             <span>Código: {producto.codigo}</span>
             <span>•</span>
@@ -48,6 +59,7 @@ export default function ProductoEnPedido({
                 <span>Incluye: {producto.descripcionIncluye}</span>
               </>
             )}
+          </div>
           </div>
         </div>
         <div className="text-right">

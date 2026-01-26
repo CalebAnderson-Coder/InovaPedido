@@ -7,6 +7,7 @@ interface Producto {
   pagina: number;
   descuento: string;
   tipo_oferta: string;
+  imagen?: string;
 }
 
 let productosCache: Producto[] | null = null;
@@ -44,7 +45,7 @@ export async function getProductos(): Promise<Producto[]> {
   };
 
   productosCache = lines.map(line => {
-    const [codigo, catalogo, producto, descripcion, precio, pagina, descuento, tipo_oferta] = parseCSVLine(line);
+    const [codigo, catalogo, producto, descripcion, precio, pagina, descuento, tipo_oferta, imagen] = parseCSVLine(line);
     
     return {
       codigo,
@@ -54,7 +55,8 @@ export async function getProductos(): Promise<Producto[]> {
       precio: parseFloat(precio) || 0,
       pagina: parseInt(pagina) || 0,
       descuento,
-      tipo_oferta
+      tipo_oferta,
+      imagen: imagen || ''
     };
   }).filter(p => p.codigo); // Filtrar líneas vacías
 
