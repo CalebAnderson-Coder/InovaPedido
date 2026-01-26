@@ -30,7 +30,7 @@ export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> =
       const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify(payload),
       });
