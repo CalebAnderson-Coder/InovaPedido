@@ -20,7 +20,7 @@ export interface Vendedora {
 
 export interface Pedido {
   id: string;
-  vendedora: Vendedora;
+  vendedora: string;
   zona: string;
   productos: Producto[];
   total: number;

@@ -12,7 +12,7 @@ export const enviarPedidoAGoogleSheets = async (pedido: Pedido): Promise<void> =
     // Transformar el pedido al formato esperado por el AppScript
     const payload = {
       location: pedido.zona,
-      vendorName: pedido.vendedora.nombre,
+      vendorName: pedido.vendedora,
       items: pedido.productos.map(producto => ({
         brand: producto.catalogo,
         quantity: producto.cantidad,
