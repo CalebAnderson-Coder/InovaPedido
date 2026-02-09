@@ -2,7 +2,7 @@ import React from 'react';
 import { UserCircle, MapPin, Phone } from 'lucide-react';
 import type { Vendedora, Zona } from '../types/types';
 
-const ZONAS: Zona[] = ['Valencia', 'Caracas', 'Maracay', 'Turmero', 'La Victoria'];
+const ZONAS: Zona[] = ['Valencia', 'Caracas', 'Santa Rita', 'Turmero', 'La Victoria', 'Mariara'];
 
 interface RegistroVendedoraProps {
   onSubmit: (vendedora: Vendedora) => void;
@@ -85,9 +85,8 @@ export default function RegistroVendedora({ onSubmit }: RegistroVendedoraProps) 
                 type="text"
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
-                  errors.nombre ? 'border-red-500' : 'border-purple-200'
-                } bg-purple-50`}
+                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${errors.nombre ? 'border-red-500' : 'border-purple-200'
+                  } bg-purple-50`}
                 placeholder="Ej: María Pérez"
                 required
               />
@@ -104,9 +103,8 @@ export default function RegistroVendedora({ onSubmit }: RegistroVendedoraProps) 
               <select
                 value={formData.zona}
                 onChange={(e) => setFormData({ ...formData, zona: e.target.value })}
-                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none ${
-                  errors.zona ? 'border-red-500' : 'border-purple-200'
-                } bg-purple-50`}
+                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none ${errors.zona ? 'border-red-500' : 'border-purple-200'
+                  } bg-purple-50`}
                 required
               >
                 <option value="">Selecciona una zona</option>
@@ -130,9 +128,8 @@ export default function RegistroVendedora({ onSubmit }: RegistroVendedoraProps) 
                 type="tel"
                 value={formData.telefono}
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
-                  errors.telefono ? 'border-red-500' : 'border-purple-200'
-                } bg-purple-50`}
+                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${errors.telefono ? 'border-red-500' : 'border-purple-200'
+                  } bg-purple-50`}
                 placeholder="Ej: 04121234567"
                 required
               />

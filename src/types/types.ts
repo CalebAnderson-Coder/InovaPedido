@@ -1,5 +1,6 @@
 export type Catalogo = 'Esika' | 'L\'Bel' | 'Cyzone';
 export type TipoEmpaque = 'Unidad' | 'Set' | 'Pack';
+export type Zona = 'Valencia' | 'Caracas' | 'Santa Rita' | 'Turmero' | 'La Victoria' | 'Mariara';
 
 export interface Producto {
   id: number;
@@ -15,13 +16,13 @@ export interface Producto {
 
 export interface Vendedora {
   nombre: string;
-  zona: string;
+  zona: Zona;
 }
 
 export interface Pedido {
   id: string;
   vendedora: string;
-  zona: string;
+  zona: Zona;
   productos: Producto[];
   total: number;
   estado: 'pendiente' | 'completado' | 'cancelado';
