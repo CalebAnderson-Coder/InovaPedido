@@ -2,10 +2,10 @@
  * Belcorp 4 Product Database Merge Script
  * 
  * Strategy A: Merge/Update
- * - Updates prices and pages for existing products (matched by codigo + catalogo)
- * - Adds new products from Belcorp 4 CSVs
- * - Removes products no longer in Belcorp 4 (for Belcorp catalogs only)
- * - Preserves non-Belcorp catalog products (Natura, Avon, etc.) untouched
+ * - Uses PRECIO FINAL column (dollar amounts) instead of Precio (COP)
+ * - Includes descriptions from CSVs
+ * - Adds new products, removes ones not in Belcorp 4
+ * - Preserves non-Belcorp catalog products untouched
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
@@ -22,19 +22,20 @@ const BACKUP_CSV_PATH = join(__dirname, 'public', 'data', 'productos_backup_belc
 
 const BELCORP_CATALOGS = ['Cyzone', 'Esika', 'Lbel', 'Yanbal'];
 
-// Map from file identifier to catalog name used in productos.csv
+// Column indices for each CSV
+// Cyzone:  0-Página, 1-Pagina, 2-Código, 3-Nombre, 4-descripción, 5-Precio, ..., 15-PRECIO AL CATALAGO FINAL
+// Esika:   0-Página, 1-Pagina, 2-Código, 3-Nombre, 4-Precio, ..., 14-PRECIO CATALAGO FINAL
+// LBel:    0-Página, 1-Pagina, 2-Código, 3-Nombre, 4-Precio PESOS, ..., 14-PRECIO FINAL
+// Yanbal:  0-Página, 1-Pagina, 2-Código, 3-Nombre, 4-Precio, ..., 14-PRECIO FINAL
 const CSV_FILES = [
-    { file: 'PRECIOS BELCORP 4 - CYZONE 04.csv', catalogo: 'Cyzone', hasDescripcion: true },
-    { file: 'PRECIOS BELCORP 4 - ESIKA 04.csv', catalogo: 'Esika', hasDescripcion: false },
-    { file: 'PRECIOS BELCORP 4 - LBEL 04.csv', catalogo: 'Lbel', hasDescripcion: false },
-    { file: 'PRECIOS BELCORP 4 - YANBAL02.csv', catalogo: 'Yanbal', hasDescripcion: false },
+    { file: 'PRECIOS BELCORP 4 - CYZONE 04.csv', catalogo: 'Cyzone', descripcionCol: 4, precioFinalCol: 15 },
+    { file: 'PRECIOS BELCORP 4 - ESIKA 04.csv', catalogo: 'Esika', descripcionCol: -1, precioFinalCol: 14 },
+    { file: 'PRECIOS BELCORP 4 - LBEL 04.csv', catalogo: 'Lbel', descripcionCol: -1, precioFinalCol: 14 },
+    { file: 'PRECIOS BELCORP 4 - YANBAL02.csv', catalogo: 'Yanbal', descripcionCol: -1, precioFinalCol: 14 },
 ];
 
 // === CSV Parsing Helpers ===
 
-/**
- * Parse a CSV line respecting quoted fields with commas inside
- */
 function parseCSVLine(line) {
     const fields = [];
     let current = '';
@@ -45,7 +46,7 @@ function parseCSVLine(line) {
         if (char === '"') {
             if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
                 current += '"';
-                i++; // skip escaped quote
+                i++;
             } else {
                 inQuotes = !inQuotes;
             }
@@ -60,9 +61,6 @@ function parseCSVLine(line) {
     return fields;
 }
 
-/**
- * Escape a CSV field (wrap in quotes if it contains commas, quotes, or newlines)
- */
 function escapeCSV(value) {
     if (value === undefined || value === null) return '';
     const str = String(value);
@@ -73,16 +71,19 @@ function escapeCSV(value) {
 }
 
 /**
- * Normalize price to integer format (e.g., "44.000" → 44000, "34990" → 34990)
+ * Normalize PRECIO FINAL: "20,50" → "20.50", "8,00" → "8", "21,50" → "21.50"
+ * These are dollar amounts with comma as decimal separator
  */
-function normalizePrice(priceStr) {
+function normalizePrecioFinal(priceStr) {
     if (!priceStr) return '';
-    // Remove dots used as thousands separators and any whitespace
-    let cleaned = priceStr.replace(/\./g, '').replace(/\s/g, '');
-    // Remove any trailing comma decimals (e.g., ",00")
-    cleaned = cleaned.replace(/,\d+$/, '');
-    const num = parseInt(cleaned, 10);
-    return isNaN(num) ? '' : String(num);
+    // Remove quotes and whitespace
+    let cleaned = priceStr.replace(/"/g, '').trim();
+    // Replace comma decimal separator with dot
+    cleaned = cleaned.replace(',', '.');
+    const num = parseFloat(cleaned);
+    if (isNaN(num)) return '';
+    // Return as clean number string (e.g., "20.5" or "8")
+    return String(num);
 }
 
 // === Main Logic ===
@@ -126,39 +127,31 @@ function loadNewCatalog(csvConfig) {
     const lines = content.split('\n').map(l => l.replace(/\r$/, ''));
     const products = [];
 
-    // Skip header (line 0)
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
         const fields = parseCSVLine(line);
         if (fields.length < 4) continue;
 
-        // Common columns: Página(0), Pagina(1), Código(2), Nombre(3)
-        const pagina = fields[1] || fields[0]; // Use "Pagina" (numeric), fallback to "Página"
+        const pagina = fields[1] || fields[0];
         const codigo = fields[2];
         const nombre = fields[3];
 
-        let descripcion = '';
-        let precio = '';
+        // Get description if available
+        const descripcion = csvConfig.descripcionCol >= 0 ? (fields[csvConfig.descripcionCol] || '') : '';
 
-        if (csvConfig.hasDescripcion) {
-            // Cyzone: col 4 = descripción, col 5 = Precio
-            descripcion = fields[4] || '';
-            precio = normalizePrice(fields[5] || '');
-        } else {
-            // Esika, LBel, Yanbal: col 4 = Precio
-            precio = normalizePrice(fields[4] || '');
-        }
+        // Use PRECIO FINAL column
+        const precioFinal = normalizePrecioFinal(fields[csvConfig.precioFinalCol] || '');
 
         if (!codigo) continue;
 
         products.push({
-            codigo: codigo,
+            codigo,
             catalogo: csvConfig.catalogo,
             producto: nombre,
-            descripcion: descripcion,
-            precio: precio,
-            pagina: pagina.replace(/"/g, ''), // Clean quotes from page numbers like "6,7"
+            descripcion,
+            precio: precioFinal,
+            pagina: pagina.replace(/"/g, ''),
         });
     }
 
@@ -170,7 +163,6 @@ function mergeProducts() {
     const { header, products: existingProducts } = loadExistingProducts();
     console.log(`   Found ${existingProducts.length} existing products`);
 
-    // Separate Belcorp and non-Belcorp products
     const nonBelcorpProducts = existingProducts.filter(
         p => !BELCORP_CATALOGS.includes(p.catalogo)
     );
@@ -185,16 +177,18 @@ function mergeProducts() {
     console.log(`   ${nonBelcorpProducts.length} non-Belcorp products (preserved as-is)`);
     console.log(`   ${existingBelcorpMap.size} existing Belcorp products`);
 
-    // Load all new Belcorp 4 data
     const allNewProducts = [];
     for (const csvConfig of CSV_FILES) {
         console.log(`\n📂 Loading ${csvConfig.file}...`);
         const newProducts = loadNewCatalog(csvConfig);
         console.log(`   Found ${newProducts.length} products for ${csvConfig.catalogo}`);
+        // Show sample price
+        if (newProducts.length > 0) {
+            console.log(`   Sample: ${newProducts[0].producto} → $${newProducts[0].precio}`);
+        }
         allNewProducts.push(...newProducts);
     }
 
-    // Merge: For each new product, check if it exists in old data
     let updated = 0;
     let added = 0;
     const mergedBelcorpProducts = [];
@@ -204,7 +198,6 @@ function mergeProducts() {
         const existing = existingBelcorpMap.get(key);
 
         if (existing) {
-            // Update price and page, keep existing description, image, etc.
             mergedBelcorpProducts.push({
                 codigo: existing.codigo,
                 catalogo: existing.catalogo,
@@ -218,7 +211,6 @@ function mergeProducts() {
             });
             updated++;
         } else {
-            // New product — add it with available data
             mergedBelcorpProducts.push({
                 codigo: newProd.codigo,
                 catalogo: newProd.catalogo,
@@ -237,32 +229,29 @@ function mergeProducts() {
     const removed = existingBelcorpMap.size - updated;
 
     console.log('\n📊 Merge Summary:');
-    console.log(`   Updated: ${updated} products (price/page refreshed)`);
+    console.log(`   Updated: ${updated} products (PRECIO FINAL + descriptions)`);
     console.log(`   Added:   ${added} new products`);
     console.log(`   Removed: ${removed} products (not in Belcorp 4)`);
     console.log(`   Kept:    ${nonBelcorpProducts.length} non-Belcorp products`);
 
-    // Combine: non-Belcorp + merged Belcorp
     const finalProducts = [...nonBelcorpProducts, ...mergedBelcorpProducts];
 
-    // Sort by catalog then page number
     const catalogOrder = ['Cyzone', 'Esika', 'Lbel', 'Yanbal'];
     finalProducts.sort((a, b) => {
         const catA = catalogOrder.indexOf(a.catalogo);
         const catB = catalogOrder.indexOf(b.catalogo);
-        // Non-belcorp catalogs go at the end
         const orderA = catA >= 0 ? catA : 100;
         const orderB = catB >= 0 ? catB : 100;
         if (orderA !== orderB) return orderA - orderB;
-        return (parseInt(a.pagina) || 0) - (parseInt(b.pagina) || 0);
+        return (parseFloat(a.pagina) || 0) - (parseFloat(b.pagina) || 0);
     });
 
     return { header, finalProducts };
 }
 
 function writeFinalCSV(header, products) {
-    // Backup existing file
-    if (existsSync(EXISTING_CSV_PATH)) {
+    // Don't re-backup if backup already exists
+    if (!existsSync(BACKUP_CSV_PATH) && existsSync(EXISTING_CSV_PATH)) {
         const existingContent = readFileSync(EXISTING_CSV_PATH, 'utf-8');
         writeFileSync(BACKUP_CSV_PATH, existingContent, 'utf-8');
         console.log(`\n💾 Backup saved to: ${BACKUP_CSV_PATH}`);
@@ -292,7 +281,6 @@ function writeFinalCSV(header, products) {
 const { header, finalProducts } = mergeProducts();
 writeFinalCSV(header, finalProducts);
 
-// Also copy to dist if it exists
 const distPath = join(__dirname, 'dist', 'data', 'productos.csv');
 if (existsSync(join(__dirname, 'dist', 'data'))) {
     writeFileSync(distPath, readFileSync(OUTPUT_CSV_PATH, 'utf-8'), 'utf-8');
