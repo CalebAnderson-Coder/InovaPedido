@@ -163,25 +163,39 @@ const ConfirmacionPedido: React.FC<ConfirmacionPedidoProps> = ({ pedido, onClose
 
     setLoading(true);
     setError(null);
+    let webhookOk = false;
+
+    // Paso 1: Intentar enviar a Google Sheets (no bloqueante)
     try {
-      // Primero enviamos los datos a Google Sheets
       await enviarPedidoAGoogleSheets(pedido);
+      webhookOk = true;
+      console.log('✅ Pedido enviado a Google Sheets correctamente');
+    } catch (err) {
+      console.error('⚠️ Error al enviar a Google Sheets (continuando con descarga):', err);
+      // No bloqueamos — seguimos con la descarga del documento
+    }
 
-      // Marcar como enviado si la función existe
-      if (onPedidoEnviado) {
-        onPedidoEnviado(pedido.id);
-      }
-
-      // Luego generamos el documento
+    // Paso 2: Generar y descargar el documento (siempre)
+    try {
       if (!pedido.vendedora || !pedido.zona) {
         throw new Error('Faltan datos de la vendedora');
       }
       await generarDocumentoPedido(pedido);
 
+      // Marcar como enviado si el webhook funcionó
+      if (webhookOk && onPedidoEnviado) {
+        onPedidoEnviado(pedido.id);
+      }
+
       // Marcamos el pedido como procesado
       setPedidoProcesado(true);
+
+      // Mostrar advertencia si el webhook falló pero el documento se generó
+      if (!webhookOk) {
+        setError('⚠️ Pedido descargado, pero no se pudo enviar a Google Sheets. Intenta enviarlo por WhatsApp.');
+      }
     } catch (err) {
-      setError('Error al procesar el pedido. Por favor intente de nuevo.');
+      setError('Error al generar el documento. Por favor intente de nuevo.');
       console.error('Error:', err);
     } finally {
       setLoading(false);
