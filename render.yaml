@@ -21,7 +21,9 @@ services:
     buildFilter:
       paths:
         - src/**
+        - public/**
         - package.json
         - vite.config.ts
         - tsconfig.json
         - index.html
+        - build.sh
